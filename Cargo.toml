@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arx = "0.1.0"
+arx = { git = "https://framagit.org/jubako/arx.git" }
 clap = { version = "4.1.4", features = ["derive"] }
-jbk-jim = { path = "../jim" }
-jubako = "0.1.0"
+jbk-jim = { git = "https://framagit.org/jubako/jim.git" }
+jubako = { git = "https://framagit.org/jubako/jubako.git" }
 mime_guess = "2.0.4"
 
 
