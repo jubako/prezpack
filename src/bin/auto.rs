@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 #[derive(Parser)]
-#[clap(name = "jim")]
+#[clap(name = "prezpack")]
 #[clap(author, version, about, long_about=None)]
 struct Cli {
     #[clap(short, long, action=clap::ArgAction::Count)]
@@ -78,7 +78,7 @@ fn run(jbk_path: PathBuf) -> jbk::Result<()> {
                 println!("Extract archive {jbk_path:?} in {:?}", cmd.outdir);
             }
 
-            arx::extract(jbk_path, cmd.outdir)
+            arx::extract(&jbk_path, &cmd.outdir, Default::default(), false)
         }
 
         Commands::Mount(cmd) => {
@@ -86,14 +86,16 @@ fn run(jbk_path: PathBuf) -> jbk::Result<()> {
                 println!("Mount archive {jbk_path:?} in {:?}", cmd.mountdir);
             }
 
-            arx::mount(jbk_path, cmd.mountdir)
+            let arx = arx::Arx::new(jbk_path)?;
+            let arxfs = arx::ArxFs::new(arx)?;
+            arxfs.mount(&cmd.mountdir)
         }
 
         Commands::Serve(cmd) => {
             if args.verbose > 0 {
                 println!("Serve archive {jbk_path:?} at {:?}", cmd.address,);
             }
-            let server = jbk_jim::Server::new(jbk_path)?;
+            let server = waj::Server::new(jbk_path)?;
             server.serve(&cmd.address)
         }
     }

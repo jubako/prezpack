@@ -1,16 +1,19 @@
 [package]
-name = "revealpack"
+name = "prezpack"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arx = { git = "https://framagit.org/jubako/arx.git" }
+arx = { git = "https://framagit.org/jubako/arx.git", package="libarx" }
 clap = { version = "4.1.4", features = ["derive"] }
-jbk-jim = { git = "https://framagit.org/jubako/jim.git" }
+waj = { git = "https://framagit.org/jubako/waj.git", package="libwaj" }
 jubako = { git = "https://framagit.org/jubako/jubako.git" }
 mime_guess = "2.0.4"
+tempfile = "3.6.0"
+walkdir = "2.3.3"
+indicatif = "0.17.5"
 
 
 [profile.release]
