@@ -81,12 +81,12 @@ impl FsEntry {
 impl waj::create::EntryTrait for FsEntry {
     fn kind(&self) -> jbk::Result<Option<waj::create::EntryKind>> {
         Ok(match self.kind {
-            FsEntryKind::File(content_address, ref mime, _size) => {
-                Some(waj::create::EntryKind::Content(content_address, mime.clone()))
-            }
-            FsEntryKind::Link => {
-                Some(waj::create::EntryKind::Redirect(fs::read_link(&self.path)?.into()))
-            }
+            FsEntryKind::File(content_address, ref mime, _size) => Some(
+                waj::create::EntryKind::Content(content_address, mime.clone()),
+            ),
+            FsEntryKind::Link => Some(waj::create::EntryKind::Redirect(
+                fs::read_link(&self.path)?.into(),
+            )),
             _ => None,
         })
     }
@@ -103,7 +103,9 @@ impl arx::create::EntryTrait for FsEntry {
                 Some(arx::create::EntryKind::File(size, content_address))
             }
 
-            FsEntryKind::Link => Some(arx::create::EntryKind::Link(fs::read_link(&self.path)?.into())),
+            FsEntryKind::Link => Some(arx::create::EntryKind::Link(
+                fs::read_link(&self.path)?.into(),
+            )),
             FsEntryKind::Other => None,
         })
     }
