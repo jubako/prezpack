@@ -86,9 +86,9 @@ fn run(jbk_path: PathBuf) -> jbk::Result<()> {
                 println!("Mount archive {jbk_path:?} in {:?}", cmd.mountdir);
             }
 
-            let arx = arx::Arx::new(jbk_path)?;
+            let arx = arx::Arx::new(&jbk_path)?;
             let arxfs = arx::ArxFs::new(arx)?;
-            arxfs.mount(&cmd.mountdir)
+            arxfs.mount(jbk_path.to_str().unwrap().to_string(), &cmd.mountdir)
         }
 
         Commands::Serve(cmd) => {

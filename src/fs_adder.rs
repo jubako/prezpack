@@ -1,9 +1,11 @@
 use jubako as jbk;
 
 use super::create::{EntryStoreCreator, Void};
+use jubako::creator::InputReader;
 use mime_guess::mime;
 use std::ffi::OsStr;
 use std::fs;
+use std::io::Read;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
@@ -15,7 +17,7 @@ pub enum FsEntryKind {
 }
 
 pub trait Adder {
-    fn add(&mut self, reader: jbk::Reader) -> jbk::Result<jbk::ContentAddress>;
+    fn add<R: jbk::creator::InputReader>(&mut self, reader: R) -> jbk::Result<jbk::ContentAddress>;
 }
 
 pub struct FsEntry {
@@ -29,26 +31,24 @@ pub struct FsEntry {
 }
 
 impl FsEntry {
-    pub fn new_from_walk_entry(
+    pub fn new_from_walk_entry<A: Adder>(
         dir_entry: walkdir::DirEntry,
         name: PathBuf,
-        adder: &mut dyn Adder,
+        adder: &mut A,
     ) -> jbk::Result<Box<Self>> {
         let fs_path = dir_entry.path().to_path_buf();
         let attr = dir_entry.metadata().unwrap();
         let kind = if attr.is_dir() {
             FsEntryKind::Dir
         } else if attr.is_file() {
-            let reader: jbk::Reader = jbk::creator::FileSource::open(&fs_path)?.into();
+            let mut reader = jbk::creator::InputFile::open(&fs_path)?;
             let size = reader.size();
             let mime_type = match mime_guess::from_path(&fs_path).first() {
                 Some(m) => m,
                 None => {
                     let mut buf = [0u8; 100];
                     let size = std::cmp::min(100, size.into_usize());
-                    reader
-                        .create_flux_to(jbk::End::new_size(size))
-                        .read_exact(&mut buf[..size])?;
+                    reader.read_exact(&mut buf[..size])?;
                     (|| {
                         for window in buf[..size].windows(4) {
                             if window == b"html" {
