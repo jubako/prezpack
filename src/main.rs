@@ -37,9 +37,6 @@ struct Options {
 
     #[clap(short = '1', long, required = false, default_value_t = false, action)]
     one_file: bool,
-
-    #[clap(short, long, value_parser)]
-    main_entry: PathBuf,
 }
 
 fn get_files_to_add(options: &Options) -> jbk::Result<Vec<PathBuf>> {
@@ -140,7 +137,6 @@ fn main() -> jbk::Result<()> {
     let mut creator = Creator::new(
         &out_file,
         strip_prefix,
-        options.main_entry,
         concat_mode,
         jbk_progress,
         Rc::clone(&progress) as Rc<dyn jbk::creator::CacheProgress>,
