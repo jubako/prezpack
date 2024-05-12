@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 pub type Void = jbk::Result<()>;
 
-const VENDOR_ID: u32 = u32::from_be_bytes([b'p', b'r', b'e', b'z']);
+const VENDOR_ID: jbk::VendorId = jbk::VendorId::new([b'p', b'r', b'e', b'z']);
 
 pub enum ConcatMode {
     OneFile,

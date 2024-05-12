@@ -3,7 +3,7 @@ use jubako as jbk;
 use super::create::{EntryStoreCreator, Void};
 use jubako::creator::InputReader;
 use mime_guess::mime;
-use std::ffi::OsStr;
+use std::borrow::Cow;
 use std::fs;
 use std::io::Read;
 use std::os::unix::fs::MetadataExt;
@@ -85,13 +85,18 @@ impl waj::create::EntryTrait for FsEntry {
                 waj::create::EntryKind::Content(content_address, mime.clone()),
             ),
             FsEntryKind::Link => Some(waj::create::EntryKind::Redirect(
-                fs::read_link(&self.path)?.into(),
+                fs::read_link(&self.path)?.to_str().unwrap().to_string(),
             )),
             _ => None,
         })
     }
-    fn name(&self) -> &OsStr {
-        self.name.as_os_str()
+    fn name(&self) -> Cow<str> {
+        Cow::Owned(
+            self.name
+                .to_str()
+                .unwrap_or_else(|| panic!("{:?} must be a utf8", self.name))
+                .to_owned(),
+        )
     }
 }
 
@@ -104,16 +109,18 @@ impl arx::create::EntryTrait for FsEntry {
             }
 
             FsEntryKind::Link => Some(arx::create::EntryKind::Link(
-                fs::read_link(&self.path)?.into(),
+                arx::Path::from_path(&fs::read_link(&self.path)?)
+                    .unwrap_or_else(|_| panic!("Must be utf8"))
+                    .to_owned(),
             )),
             FsEntryKind::Other => None,
         })
     }
 
-    fn path(&self) -> &std::path::Path {
+    fn path(&self) -> &arx::Path {
         #![allow(clippy::misnamed_getters)]
         // The "path" in a arx is the name here
-        &self.name
+        arx::Path::from_path(&self.name).unwrap()
     }
 
     fn uid(&self) -> u64 {
